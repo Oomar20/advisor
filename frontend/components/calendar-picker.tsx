@@ -153,10 +153,7 @@ export function CalendarPicker({
   }
 
   function handleMonthChange(direction: -1 | 1) {
-    setVisibleMonth((currentMonth) => {
-      const nextMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + direction, 1);
-      return nextMonth;
-    });
+    setVisibleMonth((currentMonth) => new Date(currentMonth.getFullYear(), currentMonth.getMonth() + direction, 1));
     setIsYearPickerOpen(false);
   }
 
@@ -179,33 +176,33 @@ export function CalendarPicker({
 
         <div className="relative" dir="ltr">
           <div className="flex items-center justify-between py-1">
-          <button
-            type="button"
-            aria-label="Previous month"
-            className="flex h-8 w-8 items-center justify-center rounded-[8px] text-[#667085] sm:h-9 sm:w-9"
-            onClick={() => handleMonthChange(-1)}
-          >
-            &#8249;
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsYearPickerOpen((currentValue) => !currentValue)}
-            className="rounded-[8px] px-3 py-1 text-center text-[15px] font-extrabold leading-5 text-[#344054] transition-colors hover:bg-white/70 sm:text-[16px]"
-            dir="rtl"
-            aria-haspopup="dialog"
-            aria-expanded={isYearPickerOpen}
-          >
-            {getMonthLabel(visibleMonth)}
-          </button>
-          <button
-            type="button"
-            aria-label="Next month"
-            className="flex h-8 w-8 items-center justify-center rounded-[8px] text-[#667085] sm:h-9 sm:w-9"
-            onClick={() => handleMonthChange(1)}
-          >
-            &#8250;
-          </button>
-        </div>
+            <button
+              type="button"
+              aria-label="Previous month"
+              className="flex h-8 w-8 items-center justify-center rounded-[8px] text-[#667085] sm:h-9 sm:w-9"
+              onClick={() => handleMonthChange(-1)}
+            >
+              &#8249;
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsYearPickerOpen((currentValue) => !currentValue)}
+              className="rounded-[8px] px-3 py-1 text-center text-[15px] font-extrabold leading-5 text-[#344054] transition-colors hover:bg-white/70 sm:text-[16px]"
+              dir="rtl"
+              aria-haspopup="dialog"
+              aria-expanded={isYearPickerOpen}
+            >
+              {getMonthLabel(visibleMonth)}
+            </button>
+            <button
+              type="button"
+              aria-label="Next month"
+              className="flex h-8 w-8 items-center justify-center rounded-[8px] text-[#667085] sm:h-9 sm:w-9"
+              onClick={() => handleMonthChange(1)}
+            >
+              &#8250;
+            </button>
+          </div>
 
           {isYearPickerOpen ? (
             <div className="absolute left-1/2 top-full z-10 mt-2 w-[220px] -translate-x-1/2 rounded-[12px] border border-[#e5e7eb] bg-white p-3 shadow-lg">

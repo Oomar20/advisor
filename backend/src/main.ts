@@ -18,7 +18,14 @@ async function bootstrap() {
   );
 
   await app.register(cors, {
-    origin: true,
+    origin: (origin, callback) => {
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+
+      callback(null, origin === env.ALLOWED_ORIGIN);
+    },
   });
 
   const port = env.PORT;

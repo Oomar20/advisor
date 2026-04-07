@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from "@nestjs/common";
+import { ConflictException, Injectable, Logger } from "@nestjs/common";
 import { and, eq } from "drizzle-orm";
 
 import { env } from "../config/env";
@@ -20,6 +20,7 @@ type MemoryBooking = {
 
 @Injectable()
 export class BookingsService {
+  private readonly logger = new Logger(BookingsService.name);
   private readonly memoryBookings: MemoryBooking[] = [];
 
   constructor(private readonly databaseService: DatabaseService) {}
@@ -68,10 +69,46 @@ export class BookingsService {
           throw new ConflictException("Another user booked this session just now.");
         }
 
-        throw error;
+        this.logger.warn(
+          `Database booking insert failed. Falling back to in-memory storage. ${getErrorMessage(error)}`,
+        );
+
+        return this.createMemoryBooking(input, timezone);
       }
     }
 
+    return this.createMemoryBooking(input, timezone);
+  }
+
+  private async getBookedSlots(date: string) {
+    if (this.databaseService.db) {
+      try {
+        const rows = await this.databaseService.db
+          .select({
+            timeSlot: bookings.timeSlot,
+          })
+          .from(bookings)
+          .where(
+            and(
+              eq(bookings.consultantId, env.CONSULTANT_ID),
+              eq(bookings.sessionDate, date),
+            ),
+          );
+
+        return rows.map((row) => row.timeSlot);
+      } catch (error) {
+        this.logger.warn(
+          `Database availability query failed. Falling back to in-memory storage. ${getErrorMessage(error)}`,
+        );
+      }
+    }
+
+    return this.memoryBookings
+      .filter((booking) => booking.consultantId === env.CONSULTANT_ID && booking.sessionDate === date)
+      .map((booking) => booking.timeSlot);
+  }
+
+  private createMemoryBooking(input: CreateBookingInput, timezone: string) {
     const booking = {
       id: crypto.randomUUID(),
       consultantId: env.CONSULTANT_ID,
@@ -90,28 +127,6 @@ export class BookingsService {
       message: "Booking confirmed.",
     };
   }
-
-  private async getBookedSlots(date: string) {
-    if (this.databaseService.db) {
-      const rows = await this.databaseService.db
-        .select({
-          timeSlot: bookings.timeSlot,
-        })
-        .from(bookings)
-        .where(
-          and(
-            eq(bookings.consultantId, env.CONSULTANT_ID),
-            eq(bookings.sessionDate, date),
-          ),
-        );
-
-      return rows.map((row) => row.timeSlot);
-    }
-
-    return this.memoryBookings
-      .filter((booking) => booking.consultantId === env.CONSULTANT_ID && booking.sessionDate === date)
-      .map((booking) => booking.timeSlot);
-  }
 }
 
 function isUniqueViolation(error: unknown) {
@@ -121,4 +136,12 @@ function isUniqueViolation(error: unknown) {
     "code" in error &&
     (error as { code?: string }).code === "23505"
   );
+}
+
+function getErrorMessage(error: unknown) {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return "Unknown database error.";
 }

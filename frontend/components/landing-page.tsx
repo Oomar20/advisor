@@ -1,5 +1,4 @@
-import { CalendarPicker } from "@/components/calendar-picker";
-import { TimeSlotsPicker } from "@/components/time-slots-picker";
+import { BookingWidget } from "@/components/booking-widget";
 
 const topIcons = [
   {
@@ -33,12 +32,6 @@ const socialIcons = [
 
 const avatarSrc = "https://www.figma.com/api/mcp/asset/a1c981f0-8c41-409d-9ff1-484ad5145a40";
 
-const timeRows = [
-  ["11:00 AM", "10:00 AM", "09:00 am"],
-  ["02:00 PM", "01:00 PM", "12:00 PM"],
-  [null, "04:00 PM", "03:00 PM"],
-];
-
 const advisoryTopics = [
   "اشتراك e-com",
   "اعتماد الوسائط الرقمية / المنصة",
@@ -65,19 +58,13 @@ export function LandingPage() {
           </header>
 
           <section className="grid gap-5 lg:grid-cols-[380px_600px]">
-            <div className="space-y-5">
-              <CalendarPicker
-                title="الأيام المتاحة"
-                description="مدة الجلسة 60 دقيقة محددة سابقاً من قبل المستشار"
-              />
-
-              <TimeSlotsPicker
-                title="الأوقات المتاحة"
-                description="سيتم الحجز بتوقيت بلدك الحالي"
-                slots={timeRows}
-                buttonLabel="حجز جلسة"
-              />
-            </div>
+            <BookingWidget
+              calendarTitle="الأيام المتاحة"
+              calendarDescription="مدة الجلسة 60 دقيقة محددة سابقاً من قبل المستشار"
+              slotsTitle="الأوقات المتاحة"
+              slotsDescription="سيتم الحجز بتوقيت بلدك الحالي"
+              buttonLabel="حجز جلسة"
+            />
 
             <article className="overflow-hidden rounded-[12px] bg-[#f7f7f7]">
               <div className="flex flex-col gap-4 px-5 py-6 sm:flex-row-reverse sm:items-start sm:justify-between">
@@ -92,10 +79,10 @@ export function LandingPage() {
                     سارة أحمد
                   </h2>
                   <p className="mt-1 text-[14px] font-medium leading-normal text-black">
-                    مؤسس ، مستثمر ، شريك في اكبر شركات التقنية
+                    مؤسس، مستثمر، شريك في اكبر شركات التقنية
                   </p>
                   <p className="text-[14px] font-medium leading-normal text-black">
-                    بالمملكة ، خبرة 35 عاماً
+                    بالمملكة، خبرة 35 عاماً
                   </p>
 
                   <div className="mt-2 flex justify-end gap-2" dir="ltr">
@@ -129,7 +116,7 @@ export function LandingPage() {
                       <li key={topic}>- {topic}</li>
                     ))}
                   </ul>
-                  <p className="mt-5">أحب مساعدة الآخرين ، وخاصة رواد الأعمال الجائعين.</p>
+                  <p className="mt-5">أحب مساعدة الآخرين، وخاصة رواد الأعمال الجائعين.</p>
                   <p className="mt-5">توسيع نطاق مجتمع المؤسس الخاص حالياً.</p>
                 </section>
               </div>
