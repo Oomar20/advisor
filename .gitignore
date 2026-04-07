@@ -1,7 +1,6 @@
 frontend/.next/
 frontend/node_modules/
 frontend/out/
-frontend/bun.lock
 frontend/bun.lockb
 backend/node_modules/
 .DS_Store
@@ -10,3 +9,5 @@ Thumbs.db
 .env
 .env.local
 .env.*.local
+backend/.env
+frontend/.env
