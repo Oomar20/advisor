@@ -1,4 +1,5 @@
 import { CalendarPicker } from "@/components/calendar-picker";
+import { TimeSlotsPicker } from "@/components/time-slots-picker";
 
 const topIcons = [
   {
@@ -70,43 +71,12 @@ export function LandingPage() {
                 description="مدة الجلسة 60 دقيقة محددة سابقاً من قبل المستشار"
               />
 
-              <article className="rounded-[12px] bg-[#f7f7f7] p-6">
-                <div className="space-y-4 text-right" dir="rtl">
-                  <div>
-                    <h2 className="text-[18px] font-extrabold leading-normal text-[#242431]">
-                      الأوقات المتاحة
-                    </h2>
-                    <p className="mt-1 text-[14px] font-medium leading-normal text-black">
-                      سيتم الحجز بتوقيت بلدك الحالي
-                    </p>
-                  </div>
-
-                  <div className="space-y-2" dir="ltr">
-                    {timeRows.map((row, rowIndex) => (
-                      <div key={`times-${rowIndex}`} className="grid grid-cols-3 gap-2">
-                        {row.map((time) => (
-                          time ? (
-                            <button
-                              key={time}
-                              className="h-10 rounded-[8px] border border-[#969696] bg-white px-[13px] text-center text-[14px] font-semibold leading-5 text-[#1c1c1c]"
-                            >
-                              {time}
-                            </button>
-                          ) : (
-                            <div key={`empty-${rowIndex}`} aria-hidden="true" />
-                          )
-                        ))}
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="pt-[22px]">
-                    <button className="flex h-[49px] w-full items-center justify-center rounded-[8px] bg-[#0a66d2] px-[14px] py-2 text-[14px] font-extrabold text-white">
-                      حجز جلسة
-                    </button>
-                  </div>
-                </div>
-              </article>
+              <TimeSlotsPicker
+                title="الأوقات المتاحة"
+                description="سيتم الحجز بتوقيت بلدك الحالي"
+                slots={timeRows}
+                buttonLabel="حجز جلسة"
+              />
             </div>
 
             <article className="overflow-hidden rounded-[12px] bg-[#f7f7f7]">
@@ -146,8 +116,8 @@ export function LandingPage() {
                 <section>
                   <h3 className="font-extrabold">نبذة تعريفية</h3>
                   <p className="mt-1">
-                    متخصص في تطوير وادارة المنتجات الرقمية. مهتم في البزنس ولي عدة تجارب
-                    فيه. مستثمر. معد ومقدم بودكاست #سوالف_بزنس.
+                    متخصص في تطوير وادارة المنتجات الرقمية. مهتم في البزنس ولي عدة تجارب فيه.
+                    مستثمر. معد ومقدم بودكاست #سوالف_بزنس.
                   </p>
                 </section>
 
