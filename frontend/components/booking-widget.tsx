@@ -109,7 +109,7 @@ export function BookingWidget({
           throw new Error(
             "message" in payload && payload.message
               ? payload.message
-              : "Failed to load availability.",
+              : "تعذر تحميل الأوقات المتاحة.",
           );
         }
 
@@ -121,7 +121,7 @@ export function BookingWidget({
         if (!isCancelled) {
           setAvailableSlots([]);
           setLoadError(
-            error instanceof Error ? error.message : "Failed to load availability.",
+            error instanceof Error ? error.message : "تعذر تحميل الأوقات المتاحة.",
           );
         }
       } finally {
@@ -150,7 +150,7 @@ export function BookingWidget({
 
     if (!response.ok) {
       const payload = (await response.json()) as { message?: string };
-      throw new Error(payload.message ?? "Failed to refresh availability.");
+      throw new Error(payload.message ?? "تعذر تحديث الأوقات المتاحة.");
     }
 
     const payload = (await response.json()) as AvailabilityResponse;
@@ -174,11 +174,15 @@ export function BookingWidget({
     const payload = (await response.json()) as { message?: string };
 
     if (!response.ok) {
-      throw new Error(payload.message ?? "Booking failed.");
+      throw new Error(payload.message ?? "تعذر إتمام الحجز. يرجى المحاولة مرة أخرى.");
     }
 
     setSelectedSlot(null);
     await refreshAvailability();
+
+    return {
+      message: "تم تأكيد الحجز بنجاح.",
+    };
   }
 
   return (

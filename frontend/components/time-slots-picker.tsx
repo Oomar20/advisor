@@ -17,7 +17,7 @@ type TimeSlotsPickerProps = {
   isLoading?: boolean;
   errorMessage?: string | null;
   onSlotChange?: (slot: string | null) => void;
-  onBook?: (slot: string) => Promise<void>;
+  onBook?: (slot: string) => Promise<{ message: string }>;
 };
 
 function SlotButton({
@@ -63,7 +63,11 @@ export function TimeSlotsPicker({
 }: TimeSlotsPickerProps) {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [resultModal, setResultModal] = useState<{
+    status: "success" | "error";
+    message: string;
+    slotLabel: string;
+  } | null>(null);
 
   useEffect(() => {
     if (!selectedSlot) {
@@ -72,13 +76,15 @@ export function TimeSlotsPicker({
   }, [selectedSlot]);
 
   const hasAnyAvailableSlots = slots.some((row) => row.some((slot) => slot?.available));
+  const selectedSlotLabel =
+    slots.flat().find((slot) => slot?.value === selectedSlot)?.label ?? selectedSlot ?? "";
 
   function handleSelect(slot: TimeSlotCell) {
     if (!slot.available || isLoading) {
       return;
     }
 
-    setSubmitError(null);
+    setResultModal(null);
     onSlotChange?.(slot.value === selectedSlot ? null : slot.value);
   }
 
@@ -87,7 +93,7 @@ export function TimeSlotsPicker({
       return;
     }
 
-    setSubmitError(null);
+    setResultModal(null);
     setIsConfirmOpen(true);
   }
 
@@ -96,7 +102,6 @@ export function TimeSlotsPicker({
       return;
     }
 
-    setSubmitError(null);
     setIsConfirmOpen(false);
   }
 
@@ -105,22 +110,29 @@ export function TimeSlotsPicker({
       return;
     }
 
+    const bookedSlotLabel = selectedSlotLabel;
+
     try {
       setIsSubmitting(true);
-      setSubmitError(null);
-      await onBook(selectedSlot);
+      const result = await onBook(selectedSlot);
       setIsConfirmOpen(false);
+      setResultModal({
+        status: "success",
+        message: result.message,
+        slotLabel: bookedSlotLabel,
+      });
     } catch (error) {
-      setSubmitError(
-        error instanceof Error ? error.message : "تعذر إتمام الحجز حالياً.",
-      );
+      setIsConfirmOpen(false);
+      setResultModal({
+        status: "error",
+        message:
+          error instanceof Error ? error.message : "تعذر إتمام الحجز حالياً.",
+        slotLabel: bookedSlotLabel,
+      });
     } finally {
       setIsSubmitting(false);
     }
   }
-
-  const selectedSlotLabel =
-    slots.flat().find((slot) => slot?.value === selectedSlot)?.label ?? selectedSlot;
 
   return (
     <article className="rounded-[12px] bg-[#f7f7f7] p-6">
@@ -167,9 +179,7 @@ export function TimeSlotsPicker({
             type="button"
             onClick={handleOpenConfirmation}
             className={`flex h-[49px] w-full items-center justify-center rounded-[8px] px-[14px] py-2 text-[14px] font-extrabold text-white transition-colors ${
-              selectedSlot && !isLoading
-                ? "bg-[#0a66d2]"
-                : "cursor-not-allowed bg-[#8eb7e9]"
+              selectedSlot && !isLoading ? "bg-[#0a66d2]" : "cursor-not-allowed bg-[#8eb7e9]"
             }`}
             disabled={!selectedSlot || isLoading}
           >
@@ -194,10 +204,6 @@ export function TimeSlotsPicker({
               </p>
             </div>
 
-            {submitError ? (
-              <p className="mt-4 text-right text-[13px] font-medium text-[#b42318]">{submitError}</p>
-            ) : null}
-
             <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-start">
               <button
                 type="button"
@@ -213,6 +219,63 @@ export function TimeSlotsPicker({
                 disabled={isSubmitting}
               >
                 {isSubmitting ? "جاري التأكيد..." : "تأكيد الحجز"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {resultModal ? (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/35 px-4">
+          <div className="w-full max-w-md rounded-[16px] bg-white p-6 shadow-2xl" dir="rtl">
+            <div
+              className={`inline-flex h-12 w-12 items-center justify-center rounded-full ${
+                resultModal.status === "success"
+                  ? "bg-[#e8f3ff] text-[#0a66d2]"
+                  : "bg-[#fee4e2] text-[#d92d20]"
+              }`}
+            >
+              {resultModal.status === "success" ? (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" className="h-6 w-6">
+                  <path d="m5 13 4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" className="h-6 w-6">
+                  <path d="M12 8v5" strokeLinecap="round" />
+                  <path d="M12 16h.01" strokeLinecap="round" />
+                  <path
+                    d="M10.29 3.86 1.82 18a2 2 0 0 0 1.72 3h16.92a2 2 0 0 0 1.72-3L13.71 3.86a2 2 0 0 0-3.42 0Z"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              )}
+            </div>
+
+            <h3 className="mt-4 text-right text-[22px] font-extrabold text-[#242431]">
+              {resultModal.status === "success" ? "تم الحجز بنجاح" : "تعذر إتمام الحجز"}
+            </h3>
+
+            <p className="mt-3 text-right text-[15px] leading-7 text-[#344054]">
+              {resultModal.message}
+            </p>
+
+            <div className="mt-4 rounded-[12px] bg-[#f7f7f7] px-4 py-3 text-right">
+              <p className="text-[13px] font-medium text-[#667085]">الوقت المختار</p>
+              <p className="mt-1 text-[20px] font-extrabold text-[#242431]" dir="ltr">
+                {resultModal.slotLabel}
+              </p>
+            </div>
+
+            <div className="mt-6 flex justify-start">
+              <button
+                type="button"
+                onClick={() => setResultModal(null)}
+                className={`h-11 rounded-[10px] px-5 text-[14px] font-extrabold text-white ${
+                  resultModal.status === "success" ? "bg-[#0a66d2]" : "bg-[#d92d20]"
+                }`}
+              >
+                إغلاق
               </button>
             </div>
           </div>
