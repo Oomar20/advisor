@@ -47,10 +47,24 @@ export function TimeSlotsPicker({
   onBook,
 }: TimeSlotsPickerProps) {
   const [selectedSlot, setSelectedSlot] = useState<string | null>(initialSelectedSlot);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   function handleSelect(slot: string) {
     setSelectedSlot(slot);
     onSlotChange?.(slot);
+  }
+
+  function handleOpenConfirmation() {
+    if (!selectedSlot) {
+      return;
+    }
+
+    setIsConfirmOpen(true);
+  }
+
+  function handleConfirmBooking() {
+    setIsConfirmOpen(false);
+    onBook?.(selectedSlot);
   }
 
   return (
@@ -83,13 +97,54 @@ export function TimeSlotsPicker({
         <div className="pt-[22px]">
           <button
             type="button"
-            onClick={() => onBook?.(selectedSlot)}
-            className="flex h-[49px] w-full items-center justify-center rounded-[8px] bg-[#0a66d2] px-[14px] py-2 text-[14px] font-extrabold text-white"
+            onClick={handleOpenConfirmation}
+            className={`flex h-[49px] w-full items-center justify-center rounded-[8px] px-[14px] py-2 text-[14px] font-extrabold text-white transition-colors ${
+              selectedSlot
+                ? "bg-[#0a66d2]"
+                : "cursor-not-allowed bg-[#8eb7e9]"
+            }`}
+            disabled={!selectedSlot}
           >
             {buttonLabel}
           </button>
         </div>
       </div>
+
+      {isConfirmOpen && selectedSlot ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4">
+          <div className="w-full max-w-md rounded-[16px] bg-white p-6 shadow-2xl" dir="rtl">
+            <h3 className="text-right text-[22px] font-extrabold text-[#242431]">
+              تأكيد الحجز
+            </h3>
+            <p className="mt-3 text-right text-[15px] leading-7 text-[#344054]">
+              هل تريد تأكيد حجز الجلسة في الموعد التالي؟
+            </p>
+            <div className="mt-4 rounded-[12px] bg-[#f7f7f7] px-4 py-3 text-right">
+              <p className="text-[13px] font-medium text-[#667085]">الوقت المختار</p>
+              <p className="mt-1 text-[20px] font-extrabold text-[#242431]" dir="ltr">
+                {selectedSlot}
+              </p>
+            </div>
+
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-start">
+              <button
+                type="button"
+                onClick={() => setIsConfirmOpen(false)}
+                className="h-11 rounded-[10px] border border-[#d0d5dd] px-5 text-[14px] font-semibold text-[#344054]"
+              >
+                إلغاء
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmBooking}
+                className="h-11 rounded-[10px] bg-[#0a66d2] px-5 text-[14px] font-extrabold text-white"
+              >
+                تأكيد الحجز
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </article>
   );
 }
