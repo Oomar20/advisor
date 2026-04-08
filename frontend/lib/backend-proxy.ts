@@ -1,5 +1,10 @@
-export const BACKEND_API_BASE_URL =
-  process.env.BACKEND_API_BASE_URL ?? "http://localhost:3002";
+const backendApiBaseUrl = process.env.BACKEND_API_BASE_URL;
+
+if (!backendApiBaseUrl) {
+  throw new Error("BACKEND_API_BASE_URL is required.");
+}
+
+export const BACKEND_API_BASE_URL = backendApiBaseUrl;
 
 export async function parseBackendPayload(response: Response) {
   const text = await response.text();
