@@ -1,12 +1,23 @@
-import { BadRequestException, ConflictException, Injectable, Logger } from "@nestjs/common";
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  Logger,
+} from "@nestjs/common";
 import { and, eq } from "drizzle-orm";
 
 import type { AuthSessionUser } from "../auth/auth.types";
 import { env } from "../config/env";
 import { DatabaseService } from "../database/database.service";
 import { bookings } from "../database/schema/bookings";
-import { DEFAULT_TIME_SLOTS, SESSION_DURATION_MINUTES } from "./bookings.constants";
-import type { AvailableSessionsQuery, CreateBookingInput } from "./bookings.schemas";
+import {
+  DEFAULT_TIME_SLOTS,
+  SESSION_DURATION_MINUTES,
+} from "./bookings.constants";
+import type {
+  AvailableSessionsQuery,
+  CreateBookingInput,
+} from "./bookings.schemas";
 
 type MemoryBooking = {
   id: string;
@@ -42,7 +53,10 @@ export class BookingsService {
     const timezone = this.resolveTimeZone(input.timezone);
     const availability = await this.getAvailability(input.date, timezone);
 
-    if (availability.expiredSlots.includes(input.timeSlot) || availability.isPastDate) {
+    if (
+      availability.expiredSlots.includes(input.timeSlot) ||
+      availability.isPastDate
+    ) {
       throw new BadRequestException({
         code: "slot_expired",
         message: "This session time is no longer available.",
@@ -124,13 +138,18 @@ export class BookingsService {
     }
 
     return this.memoryBookings
-      .filter((booking) => booking.consultantId === env.CONSULTANT_ID && booking.sessionDate === date)
+      .filter(
+        (booking) =>
+          booking.consultantId === env.CONSULTANT_ID &&
+          booking.sessionDate === date,
+      )
       .map((booking) => booking.timeSlot);
   }
 
   private async getAvailability(date: string, timezone: string) {
     const bookedSlots = await this.getBookedSlots(date);
-    const { date: currentDate, minutesSinceMidnight } = getCurrentTimeContext(timezone);
+    const { date: currentDate, minutesSinceMidnight } =
+      getCurrentTimeContext(timezone);
     const isPastDate = date < currentDate;
     const expiredSlots =
       date === currentDate
@@ -153,7 +172,11 @@ export class BookingsService {
     };
   }
 
-  private createMemoryBooking(input: CreateBookingInput, timezone: string, user: AuthSessionUser) {
+  private createMemoryBooking(
+    input: CreateBookingInput,
+    timezone: string,
+    user: AuthSessionUser,
+  ) {
     const booking = {
       id: crypto.randomUUID(),
       consultantId: env.CONSULTANT_ID,

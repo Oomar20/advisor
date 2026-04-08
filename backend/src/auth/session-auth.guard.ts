@@ -10,7 +10,9 @@ export class SessionAuthGuard implements CanActivate {
 
   canActivate(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
-    const token = this.authService.getTokenFromCookieHeader(request.headers.cookie);
+    const token = this.authService.getTokenFromCookieHeader(
+      request.headers.cookie,
+    );
     const sessionUser = this.authService.getSessionUser(token);
 
     if (!sessionUser) {

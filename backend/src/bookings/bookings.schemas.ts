@@ -15,5 +15,7 @@ export const createBookingSchema = z.object({
   timezone: z.string().trim().min(1).optional(),
 });
 
-export type AvailableSessionsQuery = z.infer<typeof availableSessionsQuerySchema>;
+export type AvailableSessionsQuery = z.infer<
+  typeof availableSessionsQuerySchema
+>;
 export type CreateBookingInput = z.infer<typeof createBookingSchema>;
