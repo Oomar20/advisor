@@ -10,7 +10,6 @@ export const availableSessionsQuerySchema = z.object({
 });
 
 export const createBookingSchema = z.object({
-  userId: z.string().trim().min(1),
   date: z.string().regex(datePattern, "date must be in YYYY-MM-DD format"),
   timeSlot: z.enum(DEFAULT_TIME_SLOTS),
   timezone: z.string().trim().min(1).optional(),

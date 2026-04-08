@@ -18,6 +18,7 @@ async function bootstrap() {
   );
 
   await app.register(cors, {
+    credentials: true,
     origin: (origin, callback) => {
       if (!origin) {
         callback(null, true);

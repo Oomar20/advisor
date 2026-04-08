@@ -19,7 +19,6 @@ Example booking body:
 
 ```json
 {
-  "userId": "user_123",
   "date": "2026-04-07",
   "timeSlot": "10:00",
   "timezone": "UTC"
@@ -34,7 +33,7 @@ bun install
 bun run dev
 ```
 
-The server starts on `http://localhost:3001`.
+The server starts on `http://localhost:3002`.
 
 ## Database
 

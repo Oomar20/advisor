@@ -1,6 +1,7 @@
-import { ConflictException, Injectable, Logger } from "@nestjs/common";
+import { BadRequestException, ConflictException, Injectable, Logger } from "@nestjs/common";
 import { and, eq } from "drizzle-orm";
 
+import type { AuthSessionUser } from "../auth/auth.types";
 import { env } from "../config/env";
 import { DatabaseService } from "../database/database.service";
 import { bookings } from "../database/schema/bookings";
@@ -26,24 +27,40 @@ export class BookingsService {
   constructor(private readonly databaseService: DatabaseService) {}
 
   async getAvailableSessions(query: AvailableSessionsQuery) {
-    const timezone = query.timezone ?? env.DEFAULT_TIMEZONE;
-    const bookedSlots = await this.getBookedSlots(query.date);
-    const availableSlots = DEFAULT_TIME_SLOTS.filter((slot) => !bookedSlots.includes(slot));
+    const timezone = this.resolveTimeZone(query.timezone);
+    const availability = await this.getAvailability(query.date, timezone);
 
     return {
       date: query.date,
       timezone,
       sessionDurationMinutes: SESSION_DURATION_MINUTES,
-      availableSlots,
+      availableSlots: availability.availableSlots,
     };
   }
 
-  async bookSession(input: CreateBookingInput) {
-    const timezone = input.timezone ?? env.DEFAULT_TIMEZONE;
-    const existingSlots = await this.getBookedSlots(input.date);
+  async bookSession(input: CreateBookingInput, user: AuthSessionUser) {
+    const timezone = this.resolveTimeZone(input.timezone);
+    const availability = await this.getAvailability(input.date, timezone);
 
-    if (existingSlots.includes(input.timeSlot)) {
-      throw new ConflictException("This session has already been booked.");
+    if (availability.expiredSlots.includes(input.timeSlot) || availability.isPastDate) {
+      throw new BadRequestException({
+        code: "slot_expired",
+        message: "This session time is no longer available.",
+      });
+    }
+
+    if (availability.bookedSlots.includes(input.timeSlot)) {
+      throw new ConflictException({
+        code: "slot_taken",
+        message: "This session has already been booked.",
+      });
+    }
+
+    if (!availability.availableSlots.includes(input.timeSlot)) {
+      throw new BadRequestException({
+        code: "slot_unavailable",
+        message: "This session is not available for booking.",
+      });
     }
 
     if (this.databaseService.db) {
@@ -52,7 +69,7 @@ export class BookingsService {
           .insert(bookings)
           .values({
             consultantId: env.CONSULTANT_ID,
-            userId: input.userId,
+            userId: user.id,
             sessionDate: input.date,
             timeSlot: input.timeSlot,
             timezone,
@@ -66,18 +83,21 @@ export class BookingsService {
         };
       } catch (error) {
         if (isUniqueViolation(error)) {
-          throw new ConflictException("Another user booked this session just now.");
+          throw new ConflictException({
+            code: "slot_taken",
+            message: "Another user booked this session just now.",
+          });
         }
 
         this.logger.warn(
           `Database booking insert failed. Falling back to in-memory storage. ${getErrorMessage(error)}`,
         );
 
-        return this.createMemoryBooking(input, timezone);
+        return this.createMemoryBooking(input, timezone, user);
       }
     }
 
-    return this.createMemoryBooking(input, timezone);
+    return this.createMemoryBooking(input, timezone, user);
   }
 
   private async getBookedSlots(date: string) {
@@ -108,11 +128,36 @@ export class BookingsService {
       .map((booking) => booking.timeSlot);
   }
 
-  private createMemoryBooking(input: CreateBookingInput, timezone: string) {
+  private async getAvailability(date: string, timezone: string) {
+    const bookedSlots = await this.getBookedSlots(date);
+    const { date: currentDate, minutesSinceMidnight } = getCurrentTimeContext(timezone);
+    const isPastDate = date < currentDate;
+    const expiredSlots =
+      date === currentDate
+        ? DEFAULT_TIME_SLOTS.filter(
+            (slot) => getMinutesSinceMidnight(slot) <= minutesSinceMidnight,
+          )
+        : [];
+
+    const availableSlots = isPastDate
+      ? []
+      : DEFAULT_TIME_SLOTS.filter(
+          (slot) => !bookedSlots.includes(slot) && !expiredSlots.includes(slot),
+        );
+
+    return {
+      availableSlots,
+      bookedSlots,
+      expiredSlots,
+      isPastDate,
+    };
+  }
+
+  private createMemoryBooking(input: CreateBookingInput, timezone: string, user: AuthSessionUser) {
     const booking = {
       id: crypto.randomUUID(),
       consultantId: env.CONSULTANT_ID,
-      userId: input.userId,
+      userId: user.id,
       sessionDate: input.date,
       timeSlot: input.timeSlot,
       timezone,
@@ -126,6 +171,23 @@ export class BookingsService {
       booking,
       message: "Booking confirmed.",
     };
+  }
+
+  private resolveTimeZone(timezone: string | undefined) {
+    const timeZone = timezone?.trim() || env.DEFAULT_TIMEZONE;
+
+    try {
+      new Intl.DateTimeFormat("en-CA", {
+        timeZone,
+      }).format(new Date());
+
+      return timeZone;
+    } catch {
+      throw new BadRequestException({
+        code: "invalid_timezone",
+        message: "The provided timezone is invalid.",
+      });
+    }
   }
 }
 
@@ -144,4 +206,33 @@ function getErrorMessage(error: unknown) {
   }
 
   return "Unknown database error.";
+}
+
+function getCurrentTimeContext(timeZone: string) {
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+
+  const parts = formatter.formatToParts(new Date());
+  const values = Object.fromEntries(
+    parts
+      .filter((part) => part.type !== "literal")
+      .map((part) => [part.type, part.value]),
+  ) as Record<string, string>;
+
+  return {
+    date: `${values.year}-${values.month}-${values.day}`,
+    minutesSinceMidnight: Number(values.hour) * 60 + Number(values.minute),
+  };
+}
+
+function getMinutesSinceMidnight(slot: string) {
+  const [hours, minutes] = slot.split(":").map(Number);
+  return hours * 60 + minutes;
 }
