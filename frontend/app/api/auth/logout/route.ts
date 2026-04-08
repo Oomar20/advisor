@@ -8,13 +8,9 @@ import {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const response = await fetch(new URL("/bookings", BACKEND_API_BASE_URL), {
+    const response = await fetch(new URL("/auth/logout", BACKEND_API_BASE_URL), {
       method: "POST",
-      headers: withForwardedCookies(request, {
-        "Content-Type": "application/json",
-      }),
-      body: JSON.stringify(body),
+      headers: withForwardedCookies(request),
       cache: "no-store",
     });
     const payload = await parseBackendPayload(response);
@@ -31,7 +27,7 @@ export async function POST(request: NextRequest) {
   } catch {
     return NextResponse.json(
       {
-        message: "تعذر الوصول إلى خادم الحجز.",
+        message: "تعذر الوصول إلى خادم تسجيل الخروج.",
       },
       {
         status: 502,

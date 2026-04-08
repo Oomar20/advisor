@@ -2,6 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+import {
+  AuthSessionCard,
+  type SessionUser,
+} from "@/components/auth-session-card";
 import { CalendarPicker } from "@/components/calendar-picker";
 import {
   TimeSlotsPicker,
@@ -19,6 +23,16 @@ type AvailabilityResponse = {
   timezone: string;
   sessionDurationMinutes: number;
   availableSlots: string[];
+};
+
+type AuthResponse = {
+  user: SessionUser | null;
+  message?: string;
+};
+
+type ActionResponse = {
+  message?: string;
+  code?: string;
 };
 
 type BookingWidgetProps = {
@@ -78,10 +92,16 @@ export function BookingWidget({
   const [selectedDate, setSelectedDate] = useState(() => new Date());
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
+  const [sessionUser, setSessionUser] = useState<SessionUser | null>(null);
+  const [isSessionLoading, setIsSessionLoading] = useState(true);
+  const [isAuthSubmitting, setIsAuthSubmitting] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const slotGrid = useMemo(() => buildSlotGrid(availableSlots), [availableSlots]);
+  const bookingBlockedMessage =
+    selectedSlot && !sessionUser ? "سجل الدخول أولاً قبل تأكيد أي جلسة جديدة." : null;
 
   useEffect(() => {
     setSelectedSlot(null);
@@ -90,32 +110,56 @@ export function BookingWidget({
   useEffect(() => {
     let isCancelled = false;
 
-    async function loadAvailability() {
+    async function loadSession() {
+      setIsSessionLoading(true);
+      setAuthError(null);
+
+      try {
+        const response = await fetch("/api/auth/session", {
+          cache: "no-store",
+        });
+        const payload = (await response.json()) as AuthResponse;
+
+        if (!response.ok) {
+          throw new Error(payload.message ?? "تعذر التحقق من جلسة المستخدم.");
+        }
+
+        if (!isCancelled) {
+          setSessionUser(payload.user);
+        }
+      } catch (error) {
+        if (!isCancelled) {
+          setSessionUser(null);
+          setAuthError(
+            error instanceof Error ? error.message : "تعذر التحقق من جلسة المستخدم.",
+          );
+        }
+      } finally {
+        if (!isCancelled) {
+          setIsSessionLoading(false);
+        }
+      }
+    }
+
+    void loadSession();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    async function loadAvailabilityForSelectedDate() {
       setIsLoading(true);
       setLoadError(null);
 
       try {
-        const date = formatDateForApi(selectedDate);
-        const timezone = getBrowserTimeZone();
-        const response = await fetch(
-          `/api/bookings/available?date=${encodeURIComponent(date)}&timezone=${encodeURIComponent(timezone)}`,
-          {
-            cache: "no-store",
-          },
-        );
-        const payload = (await response.json()) as AvailabilityResponse | { message?: string };
-
-        if (!response.ok) {
-          throw new Error(
-            "message" in payload && payload.message
-              ? payload.message
-              : "تعذر تحميل الأوقات المتاحة.",
-          );
-        }
+        const availability = await loadAvailability(selectedDate);
 
         if (!isCancelled) {
-          const availabilityPayload = payload as AvailabilityResponse;
-          setAvailableSlots(availabilityPayload.availableSlots);
+          setAvailableSlots(availability.availableSlots);
         }
       } catch (error) {
         if (!isCancelled) {
@@ -131,15 +175,15 @@ export function BookingWidget({
       }
     }
 
-    void loadAvailability();
+    void loadAvailabilityForSelectedDate();
 
     return () => {
       isCancelled = true;
     };
   }, [selectedDate]);
 
-  async function refreshAvailability() {
-    const date = formatDateForApi(selectedDate);
+  async function loadAvailability(dateValue: Date) {
+    const date = formatDateForApi(dateValue);
     const timezone = getBrowserTimeZone();
     const response = await fetch(
       `/api/bookings/available?date=${encodeURIComponent(date)}&timezone=${encodeURIComponent(timezone)}`,
@@ -147,33 +191,109 @@ export function BookingWidget({
         cache: "no-store",
       },
     );
+    const payload = (await response.json()) as AvailabilityResponse & ActionResponse;
 
     if (!response.ok) {
-      const payload = (await response.json()) as { message?: string };
       throw new Error(payload.message ?? "تعذر تحديث الأوقات المتاحة.");
     }
 
-    const payload = (await response.json()) as AvailabilityResponse;
+    return payload;
+  }
+
+  async function refreshAvailability() {
+    const payload = await loadAvailability(selectedDate);
     setAvailableSlots(payload.availableSlots);
+    return payload;
+  }
+
+  async function handleLogin(input: { name: string; email: string }) {
+    setIsAuthSubmitting(true);
+    setAuthError(null);
+
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(input),
+      });
+      const payload = (await response.json()) as AuthResponse;
+
+      if (!response.ok || !payload.user) {
+        throw new Error(payload.message ?? "تعذر تسجيل الدخول حالياً.");
+      }
+
+      setSessionUser(payload.user);
+      setAuthError(null);
+    } catch (error) {
+      setSessionUser(null);
+      setAuthError(error instanceof Error ? error.message : "تعذر تسجيل الدخول حالياً.");
+    } finally {
+      setIsAuthSubmitting(false);
+    }
+  }
+
+  async function handleLogout() {
+    setIsAuthSubmitting(true);
+    setAuthError(null);
+
+    try {
+      const response = await fetch("/api/auth/logout", {
+        method: "POST",
+      });
+      const payload = (await response.json()) as ActionResponse;
+
+      if (!response.ok) {
+        throw new Error(payload.message ?? "تعذر تسجيل الخروج حالياً.");
+      }
+
+      setSessionUser(null);
+      setSelectedSlot(null);
+    } catch (error) {
+      setAuthError(error instanceof Error ? error.message : "تعذر تسجيل الخروج حالياً.");
+    } finally {
+      setIsAuthSubmitting(false);
+    }
   }
 
   async function handleBooking(slot: string) {
+    if (!sessionUser) {
+      throw new Error("سجل الدخول أولاً قبل إتمام الحجز.");
+    }
+
     const response = await fetch("/api/bookings", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        userId: "demo-user",
         date: formatDateForApi(selectedDate),
         timeSlot: slot,
         timezone: getBrowserTimeZone(),
       }),
     });
 
-    const payload = (await response.json()) as { message?: string };
+    const payload = (await response.json()) as ActionResponse;
 
     if (!response.ok) {
+      if (payload.code === "auth_required") {
+        setSessionUser(null);
+        setAuthError("انتهت جلسة المستخدم. سجل الدخول مرة أخرى للمتابعة.");
+      }
+
+      if (
+        payload.code === "slot_taken" ||
+        payload.code === "slot_expired" ||
+        payload.code === "slot_unavailable"
+      ) {
+        try {
+          await refreshAvailability();
+        } catch {
+          setLoadError("تعذر تحديث الأوقات المتاحة بعد محاولة الحجز.");
+        }
+      }
+
       throw new Error(payload.message ?? "تعذر إتمام الحجز. يرجى المحاولة مرة أخرى.");
     }
 
@@ -187,6 +307,15 @@ export function BookingWidget({
 
   return (
     <div className="space-y-5">
+      <AuthSessionCard
+        user={sessionUser}
+        isLoading={isSessionLoading}
+        isSubmitting={isAuthSubmitting}
+        errorMessage={authError}
+        onLogin={handleLogin}
+        onLogout={handleLogout}
+      />
+
       <CalendarPicker
         title={calendarTitle}
         description={calendarDescription}
@@ -198,7 +327,14 @@ export function BookingWidget({
         description={slotsDescription}
         slots={slotGrid}
         selectedSlot={selectedSlot}
-        buttonLabel={buttonLabel}
+        buttonLabel={
+          isSessionLoading
+            ? "جاري التحقق من الجلسة"
+            : sessionUser
+              ? buttonLabel
+              : "سجل الدخول للحجز"
+        }
+        blockedMessage={bookingBlockedMessage}
         isLoading={isLoading}
         errorMessage={loadError}
         onSlotChange={setSelectedSlot}

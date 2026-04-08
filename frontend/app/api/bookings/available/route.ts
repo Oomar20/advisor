@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const BACKEND_API_BASE_URL = process.env.BACKEND_API_BASE_URL ?? "http://localhost:3002";
+import { BACKEND_API_BASE_URL, parseBackendPayload } from "@/lib/backend-proxy";
 
 export async function GET(request: NextRequest) {
   const backendUrl = new URL("/bookings/available", BACKEND_API_BASE_URL);
@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     const response = await fetch(backendUrl, {
       cache: "no-store",
     });
-    const payload = await response.json();
+    const payload = await parseBackendPayload(response);
 
     return NextResponse.json(payload, {
       status: response.status,
@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
   } catch {
     return NextResponse.json(
       {
-        message: "Unable to reach the booking backend.",
+        message: "تعذر الوصول إلى خادم الحجز.",
       },
       {
         status: 502,

@@ -44,6 +44,10 @@ function normalizeDate(date: Date) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
 
+function isBeforeDay(left: Date, right: Date) {
+  return normalizeDate(left).getTime() < normalizeDate(right).getTime();
+}
+
 function isSameDay(left: Date, right: Date) {
   return (
     left.getFullYear() === right.getFullYear() &&
@@ -91,21 +95,25 @@ function DayButton({
   cell,
   isSelected,
   isHighlighted,
+  isDisabled,
   onSelect,
 }: {
   cell: DayCell;
   isSelected: boolean;
   isHighlighted: boolean;
+  isDisabled: boolean;
   onSelect: (date: Date) => void;
 }) {
   let textClassName = "text-[#344054]";
   if (cell.isPrevMonth) textClassName = "text-[#e8e8e8]";
   if (!cell.inCurrentMonth && cell.isNextMonth) textClassName = "text-[#667085]";
   if (cell.inCurrentMonth) textClassName = "font-extrabold text-[#344054]";
+  if (isDisabled) textClassName = "text-[#d0d5dd]";
 
   let surfaceClassName = "rounded-[20px] bg-transparent";
   if (isHighlighted) surfaceClassName = "rounded-[8px] bg-white";
   if (isSelected) surfaceClassName = "rounded-[8px] bg-[#4395ff]";
+  if (isDisabled) surfaceClassName = "rounded-[20px] bg-transparent";
 
   if (isSelected) {
     textClassName = "font-extrabold text-white";
@@ -115,7 +123,10 @@ function DayButton({
     <button
       type="button"
       onClick={() => onSelect(cell.date)}
-      className={`flex h-10 items-center justify-center text-sm leading-5 transition-colors ${surfaceClassName} ${textClassName}`}
+      disabled={isDisabled}
+      className={`flex h-10 items-center justify-center text-sm leading-5 transition-colors ${surfaceClassName} ${textClassName} ${
+        isDisabled ? "cursor-not-allowed" : ""
+      }`}
       aria-pressed={isSelected}
     >
       {cell.date.getDate()}
@@ -144,9 +155,16 @@ export function CalendarPicker({
 
   const calendarDays = buildCalendarDays(visibleMonth);
   const yearOptions = buildYearOptions(yearPageStart);
+  const currentMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+  const isPreviousMonthDisabled = visibleMonth <= currentMonthStart;
 
   function handleSelect(date: Date) {
     const normalizedDate = normalizeDate(date);
+
+    if (isBeforeDay(normalizedDate, today)) {
+      return;
+    }
+
     setSelectedDate(normalizedDate);
     setVisibleMonth(new Date(normalizedDate.getFullYear(), normalizedDate.getMonth(), 1));
     onDateChange?.(normalizedDate);
@@ -179,8 +197,13 @@ export function CalendarPicker({
             <button
               type="button"
               aria-label="Previous month"
-              className="flex h-8 w-8 items-center justify-center rounded-[8px] text-[#667085] sm:h-9 sm:w-9"
+              className={`flex h-8 w-8 items-center justify-center rounded-[8px] sm:h-9 sm:w-9 ${
+                isPreviousMonthDisabled
+                  ? "cursor-not-allowed text-[#d0d5dd]"
+                  : "text-[#667085]"
+              }`}
               onClick={() => handleMonthChange(-1)}
+              disabled={isPreviousMonthDisabled}
             >
               &#8249;
             </button>
@@ -254,6 +277,7 @@ export function CalendarPicker({
                   setVisibleMonth(new Date(today.getFullYear(), today.getMonth(), 1));
                   setSelectedDate(today);
                   setIsYearPickerOpen(false);
+                  onDateChange?.(today);
                 }}
                 className="mt-3 w-full rounded-[8px] bg-[#f7f7f7] px-3 py-2 text-sm font-semibold text-[#344054] transition-colors hover:bg-[#eef4ff]"
                 dir="rtl"
@@ -289,6 +313,7 @@ export function CalendarPicker({
                     !isSameDay(cell.date, selectedDate) &&
                     isSameDay(cell.date, normalizedHighlightedDate)
                   }
+                  isDisabled={isBeforeDay(cell.date, today)}
                   onSelect={handleSelect}
                 />
               ))}

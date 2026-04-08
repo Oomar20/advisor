@@ -14,6 +14,7 @@ type TimeSlotsPickerProps = {
   slots: Array<Array<TimeSlotCell | null>>;
   selectedSlot: string | null;
   buttonLabel: string;
+  blockedMessage?: string | null;
   isLoading?: boolean;
   errorMessage?: string | null;
   onSlotChange?: (slot: string | null) => void;
@@ -56,6 +57,7 @@ export function TimeSlotsPicker({
   slots,
   selectedSlot,
   buttonLabel,
+  blockedMessage = null,
   isLoading = false,
   errorMessage = null,
   onSlotChange,
@@ -90,6 +92,15 @@ export function TimeSlotsPicker({
 
   function handleOpenConfirmation() {
     if (!selectedSlot || isLoading) {
+      return;
+    }
+
+    if (blockedMessage) {
+      setResultModal({
+        status: "error",
+        message: blockedMessage,
+        slotLabel: selectedSlotLabel,
+      });
       return;
     }
 
@@ -172,6 +183,10 @@ export function TimeSlotsPicker({
 
         {!isLoading && errorMessage ? (
           <p className="text-[13px] font-medium text-[#b42318]">{errorMessage}</p>
+        ) : null}
+
+        {!isLoading && blockedMessage ? (
+          <p className="text-[13px] font-medium text-[#b42318]">{blockedMessage}</p>
         ) : null}
 
         <div className="pt-[22px]">

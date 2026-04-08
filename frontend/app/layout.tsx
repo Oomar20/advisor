@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
+
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "المستشار",
-  description: "واجهة حجز جلسة مستشار مبنية من تصميم Figma.",
+  description: "واجهة حجز جلسة استشارية مبنية من تصميم Figma.",
 };
 
 export default function RootLayout({
