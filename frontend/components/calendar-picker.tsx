@@ -61,7 +61,11 @@ function getMonthLabel(date: Date) {
 }
 
 function getStartOfGrid(monthDate: Date) {
-  const firstDayOfMonth = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+  const firstDayOfMonth = new Date(
+    monthDate.getFullYear(),
+    monthDate.getMonth(),
+    1,
+  );
   const mondayBasedOffset = (firstDayOfMonth.getDay() + 6) % 7;
   const startDate = new Date(firstDayOfMonth);
   startDate.setDate(firstDayOfMonth.getDate() - mondayBasedOffset);
@@ -81,10 +85,12 @@ function buildCalendarDays(monthDate: Date) {
       inCurrentMonth: date.getMonth() === monthDate.getMonth(),
       isPrevMonth:
         date.getFullYear() < monthDate.getFullYear() ||
-        (date.getFullYear() === monthDate.getFullYear() && date.getMonth() < monthDate.getMonth()),
+        (date.getFullYear() === monthDate.getFullYear() &&
+          date.getMonth() < monthDate.getMonth()),
       isNextMonth:
         date.getFullYear() > monthDate.getFullYear() ||
-        (date.getFullYear() === monthDate.getFullYear() && date.getMonth() > monthDate.getMonth()),
+        (date.getFullYear() === monthDate.getFullYear() &&
+          date.getMonth() > monthDate.getMonth()),
     });
   }
 
@@ -106,13 +112,14 @@ function DayButton({
 }) {
   let textClassName = "text-[#344054]";
   if (cell.isPrevMonth) textClassName = "text-[#e8e8e8]";
-  if (!cell.inCurrentMonth && cell.isNextMonth) textClassName = "text-[#667085]";
+  if (!cell.inCurrentMonth && cell.isNextMonth)
+    textClassName = "text-[#667085]";
   if (cell.inCurrentMonth) textClassName = "font-extrabold text-[#344054]";
   if (isDisabled) textClassName = "text-[#d0d5dd]";
 
   let surfaceClassName = "rounded-[20px] bg-transparent";
-  if (isHighlighted) surfaceClassName = "rounded-[8px] bg-white";
-  if (isSelected) surfaceClassName = "rounded-[8px] bg-[#4395ff]";
+  if (isHighlighted) surfaceClassName = "rounded-lg bg-white";
+  if (isSelected) surfaceClassName = "rounded-lg bg-[#4395ff]";
   if (isDisabled) surfaceClassName = "rounded-[20px] bg-transparent";
 
   if (isSelected) {
@@ -145,7 +152,11 @@ export function CalendarPicker({
   const normalizedHighlightedDate = normalizeDate(highlightedDate);
   const today = normalizeDate(new Date());
   const [visibleMonth, setVisibleMonth] = useState(
-    new Date(normalizedInitialDate.getFullYear(), normalizedInitialDate.getMonth(), 1),
+    new Date(
+      normalizedInitialDate.getFullYear(),
+      normalizedInitialDate.getMonth(),
+      1,
+    ),
   );
   const [selectedDate, setSelectedDate] = useState(normalizedInitialDate);
   const [isYearPickerOpen, setIsYearPickerOpen] = useState(false);
@@ -166,28 +177,39 @@ export function CalendarPicker({
     }
 
     setSelectedDate(normalizedDate);
-    setVisibleMonth(new Date(normalizedDate.getFullYear(), normalizedDate.getMonth(), 1));
+    setVisibleMonth(
+      new Date(normalizedDate.getFullYear(), normalizedDate.getMonth(), 1),
+    );
     onDateChange?.(normalizedDate);
   }
 
   function handleMonthChange(direction: -1 | 1) {
-    setVisibleMonth((currentMonth) => new Date(currentMonth.getFullYear(), currentMonth.getMonth() + direction, 1));
+    setVisibleMonth(
+      (currentMonth) =>
+        new Date(
+          currentMonth.getFullYear(),
+          currentMonth.getMonth() + direction,
+          1,
+        ),
+    );
     setIsYearPickerOpen(false);
   }
 
   function handleYearSelect(year: number) {
-    setVisibleMonth((currentMonth) => new Date(year, currentMonth.getMonth(), 1));
+    setVisibleMonth(
+      (currentMonth) => new Date(year, currentMonth.getMonth(), 1),
+    );
     setIsYearPickerOpen(false);
   }
 
   return (
-    <article className="rounded-[12px] bg-[#f7f7f7] p-4 sm:p-6">
+    <article className="rounded-xl bg-[#f7f7f7] p-4 sm:p-6">
       <div className="space-y-3 text-right" dir="rtl">
         <div>
           <h2 className="text-[17px] font-extrabold leading-normal text-[#242431] sm:text-[18px]">
             {title}
           </h2>
-          <p className="mt-1 text-[13px] font-medium leading-normal text-black sm:text-[14px]">
+          <p className="mt-1 text-[13px] font-medium leading-normal text-black sm:text-sm">
             {description}
           </p>
         </div>
@@ -197,7 +219,7 @@ export function CalendarPicker({
             <button
               type="button"
               aria-label="Previous month"
-              className={`flex h-8 w-8 items-center justify-center rounded-[8px] sm:h-9 sm:w-9 ${
+              className={`flex h-8 w-8 items-center justify-center rounded-lg sm:h-9 sm:w-9 ${
                 isPreviousMonthDisabled
                   ? "cursor-not-allowed text-[#d0d5dd]"
                   : "text-[#667085]"
@@ -209,8 +231,10 @@ export function CalendarPicker({
             </button>
             <button
               type="button"
-              onClick={() => setIsYearPickerOpen((currentValue) => !currentValue)}
-              className="rounded-[8px] px-3 py-1 text-center text-[15px] font-extrabold leading-5 text-[#344054] transition-colors hover:bg-white/70 sm:text-[16px]"
+              onClick={() =>
+                setIsYearPickerOpen((currentValue) => !currentValue)
+              }
+              className="rounded-lg px-3 py-1 text-center text-[15px] font-extrabold leading-5 text-[#344054] transition-colors hover:bg-white/70 sm:text-[16px]"
               dir="rtl"
               aria-haspopup="dialog"
               aria-expanded={isYearPickerOpen}
@@ -220,7 +244,7 @@ export function CalendarPicker({
             <button
               type="button"
               aria-label="Next month"
-              className="flex h-8 w-8 items-center justify-center rounded-[8px] text-[#667085] sm:h-9 sm:w-9"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-[#667085] sm:h-9 sm:w-9"
               onClick={() => handleMonthChange(1)}
             >
               &#8250;
@@ -228,23 +252,33 @@ export function CalendarPicker({
           </div>
 
           {isYearPickerOpen ? (
-            <div className="absolute left-1/2 top-full z-10 mt-2 w-[220px] -translate-x-1/2 rounded-[12px] border border-[#e5e7eb] bg-white p-3 shadow-lg">
-              <div className="mb-2 flex items-center justify-between gap-2" dir="ltr">
+            <div className="absolute left-1/2 top-full z-10 mt-2 w-55 -translate-x-1/2 rounded-xl border border-[#e5e7eb] bg-white p-3 shadow-lg">
+              <div
+                className="mb-2 flex items-center justify-between gap-2"
+                dir="ltr"
+              >
                 <button
                   type="button"
-                  onClick={() => setYearPageStart((currentYear) => currentYear - 12)}
-                  className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-[#f7f7f7] text-[#344054] transition-colors hover:bg-[#eef4ff]"
+                  onClick={() =>
+                    setYearPageStart((currentYear) => currentYear - 12)
+                  }
+                  className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#f7f7f7] text-[#344054] transition-colors hover:bg-[#eef4ff]"
                   aria-label="Previous years"
                 >
                   &#8249;
                 </button>
-                <p className="text-right text-[13px] font-semibold text-[#344054]" dir="rtl">
+                <p
+                  className="text-right text-[13px] font-semibold text-[#344054]"
+                  dir="rtl"
+                >
                   اختر السنة
                 </p>
                 <button
                   type="button"
-                  onClick={() => setYearPageStart((currentYear) => currentYear + 12)}
-                  className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-[#f7f7f7] text-[#344054] transition-colors hover:bg-[#eef4ff]"
+                  onClick={() =>
+                    setYearPageStart((currentYear) => currentYear + 12)
+                  }
+                  className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#f7f7f7] text-[#344054] transition-colors hover:bg-[#eef4ff]"
                   aria-label="Next years"
                 >
                   &#8250;
@@ -259,7 +293,7 @@ export function CalendarPicker({
                       key={year}
                       type="button"
                       onClick={() => handleYearSelect(year)}
-                      className={`rounded-[8px] px-2 py-2 text-sm transition-colors ${
+                      className={`rounded-lg px-2 py-2 text-sm transition-colors ${
                         isActiveYear
                           ? "bg-[#4395ff] font-extrabold text-white"
                           : "bg-[#f7f7f7] font-semibold text-[#344054] hover:bg-[#eef4ff]"
@@ -274,12 +308,14 @@ export function CalendarPicker({
                 type="button"
                 onClick={() => {
                   setYearPageStart(getYearPageStart(today.getFullYear()));
-                  setVisibleMonth(new Date(today.getFullYear(), today.getMonth(), 1));
+                  setVisibleMonth(
+                    new Date(today.getFullYear(), today.getMonth(), 1),
+                  );
                   setSelectedDate(today);
                   setIsYearPickerOpen(false);
                   onDateChange?.(today);
                 }}
-                className="mt-3 w-full rounded-[8px] bg-[#f7f7f7] px-3 py-2 text-sm font-semibold text-[#344054] transition-colors hover:bg-[#eef4ff]"
+                className="mt-3 w-full rounded-lg bg-[#f7f7f7] px-3 py-2 text-sm font-semibold text-[#344054] transition-colors hover:bg-[#eef4ff]"
                 dir="rtl"
               >
                 الانتقال إلى تاريخ اليوم
@@ -293,7 +329,7 @@ export function CalendarPicker({
             {weekdayLabels.map((day) => (
               <div
                 key={day.full}
-                className="flex h-9 items-center justify-center px-0.5 text-[10px] font-medium leading-4 sm:h-10 sm:text-[14px] sm:leading-5"
+                className="flex h-9 items-center justify-center px-0.5 text-[10px] font-medium leading-4 sm:h-10 sm:text-sm sm:leading-5"
                 dir="rtl"
               >
                 <span className="sm:hidden">{day.short}</span>
@@ -303,20 +339,25 @@ export function CalendarPicker({
           </div>
 
           {Array.from({ length: 6 }, (_, rowIndex) => (
-            <div key={`row-${rowIndex}`} className="grid grid-cols-7 gap-0 text-center">
-              {calendarDays.slice(rowIndex * 7, rowIndex * 7 + 7).map((cell) => (
-                <DayButton
-                  key={cell.date.toISOString()}
-                  cell={cell}
-                  isSelected={isSameDay(cell.date, selectedDate)}
-                  isHighlighted={
-                    !isSameDay(cell.date, selectedDate) &&
-                    isSameDay(cell.date, normalizedHighlightedDate)
-                  }
-                  isDisabled={isBeforeDay(cell.date, today)}
-                  onSelect={handleSelect}
-                />
-              ))}
+            <div
+              key={`row-${rowIndex}`}
+              className="grid grid-cols-7 gap-0 text-center"
+            >
+              {calendarDays
+                .slice(rowIndex * 7, rowIndex * 7 + 7)
+                .map((cell) => (
+                  <DayButton
+                    key={cell.date.toISOString()}
+                    cell={cell}
+                    isSelected={isSameDay(cell.date, selectedDate)}
+                    isHighlighted={
+                      !isSameDay(cell.date, selectedDate) &&
+                      isSameDay(cell.date, normalizedHighlightedDate)
+                    }
+                    isDisabled={isBeforeDay(cell.date, today)}
+                    onSelect={handleSelect}
+                  />
+                ))}
             </div>
           ))}
         </div>

@@ -88,7 +88,10 @@ export function BookingWidget({
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
-  const slotGrid = useMemo(() => buildSlotGrid(availableSlots), [availableSlots]);
+  const slotGrid = useMemo(
+    () => buildSlotGrid(availableSlots),
+    [availableSlots],
+  );
 
   useEffect(() => {
     setSelectedSlot(null);
@@ -111,7 +114,9 @@ export function BookingWidget({
         if (!isCancelled) {
           setAvailableSlots([]);
           setLoadError(
-            error instanceof Error ? error.message : "تعذر تحميل الأوقات المتاحة.",
+            error instanceof Error
+              ? error.message
+              : "تعذر تحميل الأوقات المتاحة.",
           );
         }
       } finally {
@@ -137,7 +142,8 @@ export function BookingWidget({
         cache: "no-store",
       },
     );
-    const payload = (await response.json()) as AvailabilityResponse & ActionResponse;
+    const payload = (await response.json()) as AvailabilityResponse &
+      ActionResponse;
 
     if (!response.ok) {
       throw new Error(payload.message ?? "تعذر تحديث الأوقات المتاحة.");
@@ -186,7 +192,9 @@ export function BookingWidget({
         }
       }
 
-      throw new Error(payload.message ?? "تعذر إتمام الحجز. يرجى المحاولة مرة أخرى.");
+      throw new Error(
+        payload.message ?? "تعذر إتمام الحجز. يرجى المحاولة مرة أخرى.",
+      );
     }
 
     setSelectedSlot(null);

@@ -8,11 +8,14 @@ import {
 
 export async function POST(request: NextRequest) {
   try {
-    const response = await fetch(new URL("/auth/logout", BACKEND_API_BASE_URL), {
-      method: "POST",
-      headers: withForwardedCookies(request),
-      cache: "no-store",
-    });
+    const response = await fetch(
+      new URL("/auth/logout", BACKEND_API_BASE_URL),
+      {
+        method: "POST",
+        headers: withForwardedCookies(request),
+        cache: "no-store",
+      },
+    );
     const payload = await parseBackendPayload(response);
     const nextResponse = NextResponse.json(payload, {
       status: response.status,

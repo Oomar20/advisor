@@ -32,7 +32,8 @@ const socialIcons = [
   },
 ];
 
-const avatarSrc = "https://www.figma.com/api/mcp/asset/a1c981f0-8c41-409d-9ff1-484ad5145a40";
+const avatarSrc =
+  "https://www.figma.com/api/mcp/asset/a1c981f0-8c41-409d-9ff1-484ad5145a40";
 
 const advisoryTopics = [
   "اشتراك e-com",
@@ -51,12 +52,12 @@ export function LandingPage({ user }: LandingPageProps) {
   return (
     <main className="min-h-screen bg-white text-[#1c1c1c]">
       <header className="sticky top-0 z-40 border-b border-[#ececec] bg-white/95 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-[1159px] flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8 sm:py-5 lg:px-0">
+        <div className="mx-auto flex w-full max-w-289.75 flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8 sm:py-5 lg:px-0">
           <div className="text-right sm:order-2" dir="rtl">
             <h1 className="text-[19px] font-extrabold leading-none sm:text-[22px] sm:leading-normal">
               المستشار
             </h1>
-            <p className="mt-1 max-w-[220px] truncate text-[13px] font-medium text-[#667085] sm:max-w-none">
+            <p className="mt-1 max-w-55 truncate text-[13px] font-medium text-[#667085] sm:max-w-none">
               مرحباً {user.name}
             </p>
           </div>
@@ -64,7 +65,12 @@ export function LandingPage({ user }: LandingPageProps) {
           <div className="flex items-center justify-between rounded-[14px] bg-[#f7f7f7] px-4 py-3 sm:order-1 sm:justify-start sm:gap-5 sm:rounded-none sm:bg-transparent sm:px-0 sm:py-0">
             <div className="flex items-center gap-4 sm:gap-5">
               {topIcons.map((icon) => (
-                <img key={icon.alt} alt={icon.alt} className="h-6 w-6" src={icon.src} />
+                <img
+                  key={icon.alt}
+                  alt={icon.alt}
+                  className="h-6 w-6"
+                  src={icon.src}
+                />
               ))}
             </div>
             <div className="shrink-0">
@@ -74,8 +80,8 @@ export function LandingPage({ user }: LandingPageProps) {
         </div>
       </header>
 
-      <div className="mx-auto w-full max-w-[1159px] px-5 pb-10 pt-6 sm:px-8 lg:px-0 lg:pb-0 lg:pt-8">
-        <div className="mx-auto w-full max-w-[1000px]">
+      <div className="mx-auto w-full max-w-289.75 px-5 pb-10 pt-6 sm:px-8 lg:px-0 lg:pb-0 lg:pt-8">
+        <div className="mx-auto w-full max-w-250">
           <section className="grid gap-5 lg:grid-cols-[380px_600px]">
             <BookingWidget
               calendarTitle="الأيام المتاحة"
@@ -85,11 +91,11 @@ export function LandingPage({ user }: LandingPageProps) {
               buttonLabel="حجز جلسة"
             />
 
-            <article className="overflow-hidden rounded-[12px] bg-[#f7f7f7]">
+            <article className="overflow-hidden rounded-xl bg-[#f7f7f7]">
               <div className="flex flex-col gap-4 px-5 py-6 sm:flex-row-reverse sm:items-start sm:justify-between">
                 <img
                   alt="سارة أحمد"
-                  className="h-[150px] w-[150px] shrink-0 self-end rounded-full object-cover sm:self-auto"
+                  className="h-37.5 w-37.5 shrink-0 self-end rounded-full object-cover sm:self-auto"
                   src={avatarSrc}
                 />
 
@@ -97,20 +103,25 @@ export function LandingPage({ user }: LandingPageProps) {
                   <h2 className="text-[18px] font-extrabold leading-normal text-[#242431]">
                     سارة أحمد
                   </h2>
-                  <p className="mt-1 text-[14px] font-medium leading-normal text-black">
+                  <p className="mt-1 text-sm font-medium leading-normal text-black">
                     مؤسس، مستثمر، شريك في اكبر شركات التقنية
                   </p>
-                  <p className="text-[14px] font-medium leading-normal text-black">
+                  <p className="text-sm font-medium leading-normal text-black">
                     بالمملكة، خبرة 35 عاماً
                   </p>
 
                   <div className="mt-2 flex justify-end gap-2" dir="ltr">
                     {socialIcons.map((icon) => (
-                      <img key={icon.alt} alt={icon.alt} className="h-6 w-6" src={icon.src} />
+                      <img
+                        key={icon.alt}
+                        alt={icon.alt}
+                        className="h-6 w-6"
+                        src={icon.src}
+                      />
                     ))}
                   </div>
 
-                  <p className="mt-3 text-[14px] font-extrabold leading-normal text-black">
+                  <p className="mt-3 text-sm font-extrabold leading-normal text-black">
                     متاح للجلسات
                   </p>
                 </div>
@@ -118,16 +129,19 @@ export function LandingPage({ user }: LandingPageProps) {
 
               <div className="h-px w-full bg-[#d9d9d9]" />
 
-              <div className="px-5 py-5 text-right text-[14px] font-medium leading-normal text-black" dir="rtl">
+              <div
+                className="px-5 py-5 text-right text-sm font-medium leading-normal text-black"
+                dir="rtl"
+              >
                 <section>
                   <h3 className="font-extrabold">نبذة تعريفية</h3>
                   <p className="mt-1">
-                    متخصص في تطوير وادارة المنتجات الرقمية. مهتم في البزنس ولي عدة تجارب فيه.
-                    مستثمر. معد ومقدم بودكاست #سوالف_بزنس.
+                    متخصص في تطوير وادارة المنتجات الرقمية. مهتم في البزنس ولي
+                    عدة تجارب فيه. مستثمر. معد ومقدم بودكاست #سوالف_بزنس.
                   </p>
                 </section>
 
-                <section className="mt-[10px]">
+                <section className="mt-2.5">
                   <h3 className="font-extrabold">نبذة</h3>
                   <p className="mt-1">أشياء يمكنني أن أنصح بها:</p>
                   <ul className="mt-1 space-y-0">
@@ -135,7 +149,9 @@ export function LandingPage({ user }: LandingPageProps) {
                       <li key={topic}>- {topic}</li>
                     ))}
                   </ul>
-                  <p className="mt-5">أحب مساعدة الآخرين، وخاصة رواد الأعمال الجائعين.</p>
+                  <p className="mt-5">
+                    أحب مساعدة الآخرين، وخاصة رواد الأعمال الجائعين.
+                  </p>
                   <p className="mt-5">توسيع نطاق مجتمع المؤسس الخاص حالياً.</p>
                 </section>
               </div>

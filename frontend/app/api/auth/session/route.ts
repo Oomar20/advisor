@@ -8,10 +8,13 @@ import {
 
 export async function GET(request: NextRequest) {
   try {
-    const response = await fetch(new URL("/auth/session", BACKEND_API_BASE_URL), {
-      headers: withForwardedCookies(request),
-      cache: "no-store",
-    });
+    const response = await fetch(
+      new URL("/auth/session", BACKEND_API_BASE_URL),
+      {
+        headers: withForwardedCookies(request),
+        cache: "no-store",
+      },
+    );
     const payload = await parseBackendPayload(response);
     const nextResponse = NextResponse.json(payload, {
       status: response.status,

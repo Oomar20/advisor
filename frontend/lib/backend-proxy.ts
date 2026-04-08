@@ -18,7 +18,8 @@ export async function parseBackendPayload(response: Response) {
   } catch {
     if (/<(?:!doctype|html|head|body)\b/i.test(text)) {
       return {
-        message: "استجاب خادم الحجز برد غير صالح. تحقق من عنوان خادم الـ API وإعادة تشغيله.",
+        message:
+          "استجاب خادم الحجز برد غير صالح. تحقق من عنوان خادم الـ API وإعادة تشغيله.",
       };
     }
 

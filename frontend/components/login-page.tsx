@@ -37,7 +37,9 @@ export function LoginPage() {
       router.push("/");
       router.refresh();
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : "تعذر تسجيل الدخول حالياً.");
+      setErrorMessage(
+        error instanceof Error ? error.message : "تعذر تسجيل الدخول حالياً.",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -45,7 +47,7 @@ export function LoginPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-white px-5 py-10 text-[#1c1c1c] sm:px-8">
-      <div className="w-full max-w-[380px]">
+      <div className="w-full max-w-95">
         <AuthSessionCard
           user={null}
           isLoading={false}
