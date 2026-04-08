@@ -1,5 +1,14 @@
-import { LandingPage } from "@/components/landing-page";
+import { redirect } from "next/navigation";
 
-export default function Home() {
-  return <LandingPage />;
+import { LandingPage } from "@/components/landing-page";
+import { getServerSessionUser } from "@/lib/server-auth";
+
+export default async function Home() {
+  const sessionUser = await getServerSessionUser();
+
+  if (!sessionUser) {
+    redirect("/login");
+  }
+
+  return <LandingPage user={sessionUser} />;
 }

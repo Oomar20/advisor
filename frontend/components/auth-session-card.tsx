@@ -2,11 +2,7 @@
 
 import { type FormEvent, useState } from "react";
 
-export type SessionUser = {
-  id: string;
-  name: string;
-  email: string;
-};
+import type { SessionUser } from "@/lib/auth";
 
 type AuthSessionCardProps = {
   user: SessionUser | null;

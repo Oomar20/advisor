@@ -1,4 +1,6 @@
 import { BookingWidget } from "@/components/booking-widget";
+import { LogoutButton } from "@/components/logout-button";
+import type { SessionUser } from "@/lib/auth";
 
 const topIcons = [
   {
@@ -41,22 +43,30 @@ const advisoryTopics = [
   "بناء المجتمع",
 ];
 
-export function LandingPage() {
+type LandingPageProps = {
+  user: SessionUser;
+};
+
+export function LandingPage({ user }: LandingPageProps) {
   return (
     <main className="min-h-screen bg-white text-[#1c1c1c]">
-      <div className="mx-auto w-full max-w-[1159px] px-5 pb-10 pt-16 sm:px-8 lg:px-0 lg:pb-0 lg:pt-[100px]">
-        <div className="mx-auto w-full max-w-[1000px]">
-          <header className="mb-[30px] flex items-center justify-between">
-            <div className="flex items-center gap-5">
-              {topIcons.map((icon) => (
-                <img key={icon.alt} alt={icon.alt} className="h-6 w-6" src={icon.src} />
-              ))}
-            </div>
-            <h1 className="text-right text-[22px] font-extrabold leading-normal" dir="rtl">
-              المستشار
-            </h1>
-          </header>
+      <header className="sticky top-0 z-40 border-b border-[#ececec] bg-white/95 backdrop-blur">
+        <div className="mx-auto flex w-full max-w-[1159px] items-center justify-between px-5 py-5 sm:px-8 lg:px-0">
+          <div className="flex items-center gap-5">
+            {topIcons.map((icon) => (
+              <img key={icon.alt} alt={icon.alt} className="h-6 w-6" src={icon.src} />
+            ))}
+            <LogoutButton />
+          </div>
+          <div className="text-right" dir="rtl">
+            <h1 className="text-[22px] font-extrabold leading-normal">المستشار</h1>
+            <p className="mt-1 text-[13px] font-medium text-[#667085]">مرحباً {user.name}</p>
+          </div>
+        </div>
+      </header>
 
+      <div className="mx-auto w-full max-w-[1159px] px-5 pb-10 pt-6 sm:px-8 lg:px-0 lg:pb-0 lg:pt-8">
+        <div className="mx-auto w-full max-w-[1000px]">
           <section className="grid gap-5 lg:grid-cols-[380px_600px]">
             <BookingWidget
               calendarTitle="الأيام المتاحة"
