@@ -51,16 +51,25 @@ export function LandingPage({ user }: LandingPageProps) {
   return (
     <main className="min-h-screen bg-white text-[#1c1c1c]">
       <header className="sticky top-0 z-40 border-b border-[#ececec] bg-white/95 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-[1159px] items-center justify-between px-5 py-5 sm:px-8 lg:px-0">
-          <div className="flex items-center gap-5">
-            {topIcons.map((icon) => (
-              <img key={icon.alt} alt={icon.alt} className="h-6 w-6" src={icon.src} />
-            ))}
-            <LogoutButton />
+        <div className="mx-auto flex w-full max-w-[1159px] flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8 sm:py-5 lg:px-0">
+          <div className="text-right sm:order-2" dir="rtl">
+            <h1 className="text-[19px] font-extrabold leading-none sm:text-[22px] sm:leading-normal">
+              المستشار
+            </h1>
+            <p className="mt-1 max-w-[220px] truncate text-[13px] font-medium text-[#667085] sm:max-w-none">
+              مرحباً {user.name}
+            </p>
           </div>
-          <div className="text-right" dir="rtl">
-            <h1 className="text-[22px] font-extrabold leading-normal">المستشار</h1>
-            <p className="mt-1 text-[13px] font-medium text-[#667085]">مرحباً {user.name}</p>
+
+          <div className="flex items-center justify-between rounded-[14px] bg-[#f7f7f7] px-4 py-3 sm:order-1 sm:justify-start sm:gap-5 sm:rounded-none sm:bg-transparent sm:px-0 sm:py-0">
+            <div className="flex items-center gap-4 sm:gap-5">
+              {topIcons.map((icon) => (
+                <img key={icon.alt} alt={icon.alt} className="h-6 w-6" src={icon.src} />
+              ))}
+            </div>
+            <div className="shrink-0">
+              <LogoutButton />
+            </div>
           </div>
         </div>
       </header>

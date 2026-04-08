@@ -8,7 +8,7 @@ type AuthSessionResponse = {
 };
 
 export async function getServerSessionUser() {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const cookieHeader = cookieStore.toString();
 
   try {

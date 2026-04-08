@@ -25,7 +25,7 @@ export function LogoutButton() {
       type="button"
       onClick={() => void handleLogout()}
       disabled={isSubmitting}
-      className="rounded-[8px] border border-[#d0d5dd] px-3 py-2 text-[13px] font-semibold text-[#344054] transition-colors hover:border-[#98a2b3] disabled:cursor-not-allowed disabled:opacity-70"
+      className="whitespace-nowrap rounded-[10px] border border-[#d0d5dd] bg-white px-3 py-2 text-[12px] font-semibold text-[#344054] shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition-colors hover:border-[#98a2b3] sm:px-3 sm:py-2 sm:text-[13px] disabled:cursor-not-allowed disabled:opacity-70"
       dir="rtl"
     >
       {isSubmitting ? "جاري تسجيل الخروج..." : "تسجيل الخروج"}

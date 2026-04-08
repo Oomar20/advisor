@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Req, Res, UsePipes } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  Res,
+  UsePipes,
+} from "@nestjs/common";
 import type { FastifyReply } from "fastify";
 
 import { ZodValidationPipe } from "../common/pipes/zod-validation.pipe";
@@ -12,7 +20,9 @@ export class AuthController {
 
   @Get("session")
   getSession(@Req() request: AuthenticatedRequest) {
-    const token = this.authService.getTokenFromCookieHeader(request.headers.cookie);
+    const token = this.authService.getTokenFromCookieHeader(
+      request.headers.cookie,
+    );
     const user = this.authService.getSessionUser(token);
 
     return {
@@ -28,7 +38,10 @@ export class AuthController {
   ) {
     const session = this.authService.createSession(body);
 
-    reply.header("Set-Cookie", this.authService.getSessionCookieValue(session.token));
+    reply.header(
+      "Set-Cookie",
+      this.authService.getSessionCookieValue(session.token),
+    );
 
     return {
       message: "Signed in successfully.",
@@ -41,7 +54,9 @@ export class AuthController {
     @Req() request: AuthenticatedRequest,
     @Res({ passthrough: true }) reply: FastifyReply,
   ) {
-    const token = this.authService.getTokenFromCookieHeader(request.headers.cookie);
+    const token = this.authService.getTokenFromCookieHeader(
+      request.headers.cookie,
+    );
     this.authService.destroySession(token);
     reply.header("Set-Cookie", this.authService.getClearedSessionCookieValue());
 

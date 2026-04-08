@@ -34,7 +34,7 @@ export function AuthSessionCard({
 
   if (isLoading) {
     return (
-      <article className="rounded-[12px] bg-[#f7f7f7] p-6 text-right" dir="rtl">
+      <article className="rounded-xl bg-[#f7f7f7] p-6 text-right" dir="rtl">
         <h2 className="text-[18px] font-extrabold leading-normal text-[#242431]">
           التحقق من الجلسة
         </h2>
@@ -56,7 +56,10 @@ export function AuthSessionCard({
             <p className="mt-2 text-[14px] font-medium leading-7 text-[#344054]">
               يمكنك الآن تأكيد حجز الجلسة باسم {user.name}.
             </p>
-            <p className="mt-1 text-[13px] font-medium text-[#667085]" dir="ltr">
+            <p
+              className="mt-1 text-[13px] font-medium text-[#667085]"
+              dir="ltr"
+            >
               {user.email}
             </p>
           </div>
@@ -72,7 +75,9 @@ export function AuthSessionCard({
         </div>
 
         {errorMessage ? (
-          <p className="mt-4 text-[13px] font-medium text-[#b42318]">{errorMessage}</p>
+          <p className="mt-4 text-[13px] font-medium text-[#b42318]">
+            {errorMessage}
+          </p>
         ) : null}
       </article>
     );
@@ -87,9 +92,14 @@ export function AuthSessionCard({
         أدخل اسمك وبريدك الإلكتروني لتفعيل جلسة المستخدم وحماية الحجز.
       </p>
 
-      <form className="mt-5 space-y-4" onSubmit={(event) => void handleSubmit(event)}>
+      <form
+        className="mt-5 space-y-4"
+        onSubmit={(event) => void handleSubmit(event)}
+      >
         <label className="block">
-          <span className="mb-2 block text-[13px] font-semibold text-[#344054]">الاسم</span>
+          <span className="mb-2 block text-[13px] font-semibold text-[#344054]">
+            الاسم
+          </span>
           <input
             type="text"
             value={name}
@@ -121,7 +131,9 @@ export function AuthSessionCard({
         </label>
 
         {errorMessage ? (
-          <p className="text-[13px] font-medium text-[#b42318]">{errorMessage}</p>
+          <p className="text-[13px] font-medium text-[#b42318]">
+            {errorMessage}
+          </p>
         ) : null}
 
         <button
