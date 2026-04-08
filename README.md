@@ -65,8 +65,6 @@ DATABASE_URL=
 
 That keeps the API running and uses the in-memory booking fallback instead of the database.
 
-Important: Drizzle commands such as `bun run db:push` and `bun run db:generate` still need a real `DATABASE_URL`.
-
 ### Frontend env variables
 
 Create `frontend/.env.local`:
