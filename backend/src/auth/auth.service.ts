@@ -1,6 +1,5 @@
 import { Injectable } from "@nestjs/common";
 
-import { env } from "../config/env";
 import type { AuthSessionUser } from "./auth.types";
 import type { LoginInput } from "./auth.schemas";
 
@@ -11,6 +10,7 @@ type SessionRecord = {
 };
 
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
+const SESSION_COOKIE_NAME = "advisor_session";
 
 @Injectable()
 export class AuthService {
@@ -66,7 +66,7 @@ export class AuthService {
 
   getSessionCookieValue(token: string) {
     return [
-      `${env.SESSION_COOKIE_NAME}=${encodeURIComponent(token)}`,
+      `${SESSION_COOKIE_NAME}=${encodeURIComponent(token)}`,
       "Path=/",
       "HttpOnly",
       "SameSite=Lax",
@@ -76,7 +76,7 @@ export class AuthService {
 
   getClearedSessionCookieValue() {
     return [
-      `${env.SESSION_COOKIE_NAME}=`,
+      `${SESSION_COOKIE_NAME}=`,
       "Path=/",
       "HttpOnly",
       "SameSite=Lax",
@@ -94,7 +94,7 @@ export class AuthService {
     for (const cookie of cookies) {
       const [rawName, ...rawValueParts] = cookie.split("=");
 
-      if (rawName === env.SESSION_COOKIE_NAME) {
+      if (rawName === SESSION_COOKIE_NAME) {
         return decodeURIComponent(rawValueParts.join("="));
       }
     }

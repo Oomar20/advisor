@@ -6,7 +6,6 @@ const envSchema = z.object({
   ALLOWED_ORIGIN: z.string().min(1),
   DEFAULT_TIMEZONE: z.string().min(1),
   CONSULTANT_ID: z.string().min(1),
-  SESSION_COOKIE_NAME: z.string().min(1),
   DATABASE_URL: z.string().url().optional().or(z.literal("")),
 });
 

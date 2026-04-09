@@ -43,7 +43,6 @@ HOST=0.0.0.0
 ALLOWED_ORIGIN=http://localhost:3000
 DEFAULT_TIMEZONE=UTC
 CONSULTANT_ID=sara-ahmad
-SESSION_COOKIE_NAME=advisor_session
 DATABASE_URL=postgres://postgres:postgres@localhost:5432/operator
 ```
 
@@ -54,7 +53,6 @@ What each value does:
 - `ALLOWED_ORIGIN`: frontend origin allowed by CORS
 - `DEFAULT_TIMEZONE`: fallback timezone used by booking logic
 - `CONSULTANT_ID`: consultant identifier stored with bookings
-- `SESSION_COOKIE_NAME`: cookie name used for auth sessions
 - `DATABASE_URL`: PostgreSQL connection string
 
 If you want to run the backend without Postgres, set:
